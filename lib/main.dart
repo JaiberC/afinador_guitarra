@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'features/tuner/presentation/screens/tuner_screen.dart';
+import 'features/splash/presentation/screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +27,7 @@ class TunnerApp extends StatelessWidget {
       title: 'Tunner',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home: const TunerScreen(),
+      home: const SplashScreen(),
     );
   }
 }

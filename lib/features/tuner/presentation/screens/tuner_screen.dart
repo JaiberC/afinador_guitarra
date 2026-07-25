@@ -92,14 +92,40 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'TUNNER',
-            style: TextStyle(
-              color: AppColors.onSurface,
-              fontSize: 13,
-              letterSpacing: 4,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            children: [
+              Image.asset(
+                'assets/logo_jaco_dev.png',
+                width: 26,
+                height: 26,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 8),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'TUN',
+                      style: TextStyle(
+                        color: AppColors.onSurface,
+                        fontSize: 13,
+                        letterSpacing: 3,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'NER',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 13,
+                        letterSpacing: 3,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           GestureDetector(
             onTap: () => A4SelectorSheet.show(context),
