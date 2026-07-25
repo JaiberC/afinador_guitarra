@@ -15,6 +15,16 @@ class AppColors {
   static const dbMid = Color(0xFFFFD740);
   static const dbHigh = Color(0xFFFF5252);
   static const inactive = Color(0xFF3A3A3A);
+
+  // Zonas del arco del afinador
+  static const arcZoneGreen = Color(0x6600E676);
+  static const arcZoneYellow = Color(0x44FFD740);
+  static const arcZoneRed = Color(0x44FF5252);
+
+  // Efectos de glow/brillo
+  static const tunedGlow = Color(0x4000E676);
+  static const needleShadow = Color(0x8800E5FF);
+  static const dbPeak = Color(0xFFFF9800);
 }
 
 final appTheme = ThemeData(

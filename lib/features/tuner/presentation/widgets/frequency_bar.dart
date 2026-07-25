@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tunner/core/theme/app_theme.dart';
 import 'package:tunner/features/tuner/domain/models/pitch_result.dart';
+import 'package:tunner/features/tuner/presentation/widgets/cents_bar.dart';
 
 class FrequencyBar extends StatelessWidget {
   final PitchResult result;
@@ -10,104 +11,52 @@ class FrequencyBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool active = result.hasSignal && result.noteName != '-';
+    final Color freqColor = _freqColor(result);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                active ? result.frequency.toStringAsFixed(1) : '--.-',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w300,
-                  color: active ? AppColors.onBackground : AppColors.inactive,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Hz',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: active ? AppColors.onSurface : AppColors.inactive,
-                  letterSpacing: 2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          _DeviationIndicator(result: result, active: active),
-        ],
-      ),
-    );
-  }
-}
-
-class _DeviationIndicator extends StatelessWidget {
-  final PitchResult result;
-  final bool active;
-
-  const _DeviationIndicator({required this.result, required this.active});
-
-  @override
-  Widget build(BuildContext context) {
-    if (!active) {
-      return Text(
-        'esperando señal...',
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.inactive,
-          letterSpacing: 2,
-        ),
-      );
-    }
-
-    if (result.isTuned) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check_circle_outline, color: AppColors.tuned, size: 16),
-          const SizedBox(width: 6),
-          Text(
-            'AFINADO',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.tuned,
-              letterSpacing: 3,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      );
-    }
-
-    final double absCents = result.cents.abs();
-    final bool isAbove = result.isAbove;
-    final Color devColor = isAbove ? AppColors.sharp : AppColors.flat;
-
-    return Row(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          isAbove ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-          color: devColor,
-          size: 18,
+        // Hz display
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.w300,
+                color: active ? freqColor : AppColors.inactive,
+                letterSpacing: -0.5,
+              ),
+              child: Text(
+                active ? result.frequency.toStringAsFixed(1) : '--.-',
+              ),
+            ),
+            const SizedBox(width: 4),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 13,
+                color: active ? AppColors.onSurface : AppColors.inactive,
+                letterSpacing: 2,
+              ),
+              child: const Text('Hz'),
+            ),
+          ],
         ),
-        const SizedBox(width: 4),
-        Text(
-          '${absCents.toStringAsFixed(0)} cents  ${isAbove ? 'por encima' : 'por debajo'}',
-          style: TextStyle(
-            fontSize: 12,
-            color: devColor,
-            letterSpacing: 1,
-          ),
-        ),
+        const SizedBox(height: 10),
+        // Barra de cents
+        CentsBar(result: result),
       ],
     );
+  }
+
+  Color _freqColor(PitchResult r) {
+    if (!r.hasSignal || r.noteName == '-') return AppColors.inactive;
+    if (r.isTuned) return AppColors.tuned;
+    if (r.isAbove) return AppColors.sharp;
+    return AppColors.flat;
   }
 }

@@ -32,12 +32,10 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
       if (status.isDenied || status.isPermanentlyDenied) {
         setState(() => _permissionDenied = true);
       } else {
-        // Reiniciar el provider para que recoja la señal ahora que hay permiso
         ref.invalidate(tunerProvider);
       }
     } catch (_) {
-      // En plataformas desktop (Linux/macOS/Windows) permission_handler
-      // no está soportado; el acceso al micrófono es directo.
+      // Desktop: permission not required
     }
   }
 
@@ -53,20 +51,36 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
     final tunerAsync = ref.watch(tunerProvider);
     final a4Ref = ref.watch(a4ReferenceProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context, a4Ref),
-            Expanded(
-              child: tunerAsync.when(
-                data: (result) => _buildTunerLayout(result),
-                loading: () => _buildTunerLayout(PitchResult.silence),
-                error: (err, stack) => _buildTunerLayout(PitchResult.silence),
-              ),
-            ),
-          ],
+    return tunerAsync.when(
+      data: (result) => _buildScaffold(context, result, a4Ref),
+      loading: () => _buildScaffold(context, PitchResult.silence, a4Ref),
+      error: (err, stack) => _buildScaffold(context, PitchResult.silence, a4Ref),
+    );
+  }
+
+  Widget _buildScaffold(
+      BuildContext context, PitchResult result, double a4Ref) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: Border.all(
+          color: result.isTuned && result.hasSignal
+              ? AppColors.tuned.withValues(alpha: 0.35)
+              : Colors.transparent,
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context, a4Ref),
+              Expanded(child: _buildTunerLayout(result)),
+            ],
+          ),
         ),
       ),
     );
@@ -89,8 +103,10 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
           ),
           GestureDetector(
             onTap: () => A4SelectorSheet.show(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(20),
@@ -132,16 +148,17 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(flex: 2),
+              const Spacer(flex: 1),
               TunerNeedle(result: result),
-              const SizedBox(height: 8),
-              NoteDisplay(result: result),
               const SizedBox(height: 4),
+              NoteDisplay(result: result),
+              const SizedBox(height: 8),
               FrequencyBar(result: result),
-              const Spacer(flex: 3),
+              const Spacer(flex: 2),
             ],
           ),
         ),
+        const SizedBox(width: 44), // balance visual frente al DbLevelBar
       ],
     );
   }
